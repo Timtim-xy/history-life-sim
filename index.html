@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>超高自由度历史人生模拟器</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23a43a2a'/><text x='50' y='68' font-size='58' text-anchor='middle' fill='%23f4efe6'>生</text></svg>" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div id="app">
+    <header id="topbar">
+      <div class="brand">
+        <span class="brand-title">超高自由度历史人生模拟器</span>
+        <span class="brand-sub">以真实中国历史为世界 · 以普通人的一生为核心 · V1.2</span>
+      </div>
+      <div class="topbar-right">
+        <button id="btnDrawer" class="tool-btn drawer-btn" title="此世 · 永久模块">📜 此世</button>
+        <button id="btnTime" class="tool-btn" title="时间与纪年显示">⏳ 时间</button>
+        <button id="btnNewLife" class="tool-btn accent" title="开启新一世，从头开始">🌟 新开</button>
+        <button id="btnSettings" class="tool-btn" title="设置">⚙️ 设置</button>
+      </div>
+    </header>
+
+    <div id="timebar">
+      <div class="time-item" id="tEra">朝代：—</div>
+      <div class="time-item" id="tDate">纪年：—</div>
+      <div class="time-item" id="tSeason">季节/节气：—</div>
+      <div class="time-item" id="tMode">模式：—</div>
+    </div>
+
+    <div id="layout">
+      <aside id="panel">
+        <div class="panel-head">
+          <span>此世 · 永久模块</span>
+          <button id="closeDrawer" class="x drawer-x" title="收起">×</button>
+        </div>
+        <nav id="tabs">
+          <button class="tab active" data-tab="player">人物</button>
+          <button class="tab" data-tab="family">家族</button>
+          <button class="tab" data-tab="world">世界动态</button>
+          <button class="tab" data-tab="map">认识之地</button>
+          <button class="tab" data-tab="stage">阶段</button>
+        </nav>
+        <div id="panel-content">
+          <section class="tabpane active" data-pane="player"><div id="pn-player" class="empty">等待开局……</div></section>
+          <section class="tabpane" data-pane="family"><div id="pn-family" class="empty">尚未建立家族。</div></section>
+          <section class="tabpane" data-pane="world"><div id="pn-world" class="empty">世界动态待生成。</div></section>
+          <section class="tabpane" data-pane="map"><div id="pn-map" class="empty">尚未被地图认识。</div></section>
+          <section class="tabpane" data-pane="stage">
+            <div class="stage-block">
+              <div class="stage-label">当前人生阶段</div>
+              <div id="pn-stage" class="stage-text">—</div>
+            </div>
+            <div class="stage-block">
+              <div class="stage-label">你现在可以做什么</div>
+              <div id="pn-can" class="stage-text muted">—</div>
+            </div>
+            <div class="progress-wrap">
+              <div class="stage-label">世界建立进度</div>
+              <div id="pn-progress" class="progress-text">—</div>
+            </div>
+          </section>
+        </div>
+      </aside>
+
+      <main id="main">
+        <div id="log" aria-live="polite"></div>
+        <div id="typing" class="hidden"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+      </main>
+    </div>
+
+    <footer id="composer">
+      <div class="time-controls">
+        <span class="tc-label">推进时间</span>
+        <button class="chip" data-advance="即时">即时</button>
+        <button class="chip" data-advance="一天">一天</button>
+        <button class="chip" data-advance="一旬">一旬</button>
+        <button class="chip" data-advance="一月">一月</button>
+        <button class="chip" data-advance="一季">一季</button>
+        <button class="chip" data-advance="一年">一年</button>
+      </div>
+      <div class="quick-actions" id="quick">
+        <button class="chip ghost" data-quick="我去县城。">县城</button>
+        <button class="chip ghost" data-quick="我回家。">回家</button>
+        <button class="chip ghost" data-quick="我想找一份营生。">营生</button>
+        <button class="chip ghost" data-quick="我想了解最近的粮价。">粮价</button>
+        <button class="chip ghost" data-quick="我什么都不做。">静观</button>
+      </div>
+      <div class="input-row">
+        <textarea id="input" rows="2" placeholder="直接说你这一生想做什么，例如：“我去县城看看有没有营生”“我想学医”“我准备参加乡试”……"></textarea>
+        <button id="send" class="send-btn">启程</button>
+      </div>
+      <div class="composer-note">输入任意自然语言行动，系统会作为引擎推进你的这一生。</div>
+    </footer>
+  </div>
+
+  <div id="drawerOverlay" class="drawer-overlay"></div>
+
+  <div id="settings" class="modal hidden">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2>引擎连接设置</h2>
+        <button id="closeSettings" class="x">×</button>
+      </div>
+      <p class="hint">本模拟器由大语言模型驱动。填入任何兼容 OpenAI 接口的服务即可运行（OpenAI、DeepSeek、本地 Ollama 等）。</p>
+      <label>接口地址 (Base URL)
+        <input id="cfgBase" type="text" placeholder="https://api.deepseek.com/v1" />
+      </label>
+      <label>API Key
+        <input id="cfgKey" type="password" placeholder="sk-..." />
+      </label>
+      <label>模型
+        <input id="cfgModel" type="text" placeholder="deepseek-chat / deepseek-reasoner" />
+      </label>
+      <div class="modal-actions">
+        <button id="saveSettings" class="send-btn">保存</button>
+        <button id="testSettings" class="ghost-btn">测试连接</button>
+      </div>
+      <div class="modal-actions secondary">
+        <button id="exportSave" class="ghost-btn">导出存档</button>
+        <button id="importSave" class="ghost-btn">导入存档</button>
+        <button id="resetAll" class="ghost-btn danger">全部重置</button>
+      </div>
+      <input id="importFile" type="file" accept="application/json,.json" style="display:none" />
+      <div id="connStatus" class="conn-status"></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="./engine.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
